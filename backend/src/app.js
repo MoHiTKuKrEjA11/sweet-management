@@ -5,7 +5,11 @@ import sweetRoutes from "./routes/sweets.js";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://sweet-management-xqhj.vercel.app",
+  })
+);
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);

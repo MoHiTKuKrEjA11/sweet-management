@@ -29,6 +29,7 @@ export default function Sweets() {
     name: "",
     category: "Chocolate",
     price: "",
+    quantity: 1,
   });
 
   const fetchSweets = useCallback(async () => {
@@ -67,11 +68,17 @@ export default function Sweets() {
       body: JSON.stringify({
         ...newSweet,
         price: parseFloat(newSweet.price),
-        quantity: 10,
       }),
     });
 
     fetchSweets();
+    setNewSweet({
+      name: "",
+      category: "Chocolate",
+      price: "",
+      quantity: 1,
+    });
+    setModalType(null);
   };
 
   const purchaseSweet = async (sweet: Sweet) => {
@@ -219,6 +226,17 @@ export default function Sweets() {
             value={newSweet.price}
             onChange={(e) =>
               setNewSweet({ ...newSweet, price: e.target.value })
+            }
+          />
+          <input
+            className="input-field"
+            type="number"
+            placeholder="Quantity"
+            required
+            min={1}
+            value={newSweet.quantity}
+            onChange={(e) =>
+              setNewSweet({ ...newSweet, quantity: Number(e.target.value) })
             }
           />
           <button type="submit" className="primary-btn">
