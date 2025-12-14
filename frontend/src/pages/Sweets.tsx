@@ -131,6 +131,11 @@ export default function Sweets() {
       body: JSON.stringify({ amount }),
     });
 
+    setAmounts((prev) => ({
+      ...prev,
+      [sweet.id]: 1,
+    }));
+
     fetchSweets();
   };
 
@@ -419,7 +424,7 @@ export default function Sweets() {
                 disabled={s.quantity === 0}
                 onClick={() => purchaseSweet(s)}
               >
-                Buy
+                Purchase
               </button>
               <button
                 className="secondary-btn"
