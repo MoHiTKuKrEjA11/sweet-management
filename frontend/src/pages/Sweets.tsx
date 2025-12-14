@@ -205,6 +205,10 @@ export default function Sweets() {
         className="filter-form"
         onSubmit={(e) => {
           e.preventDefault();
+          if (minPrice && Number(minPrice) < 0) {
+            alert("Min price must be greater than or equal to 0");
+            return;
+          }
           fetchSweets();
         }}
       >
@@ -219,13 +223,11 @@ export default function Sweets() {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
-          <option value="" disabled>
-            Category
-          </option>
-          <option>Chocolate</option>
-          <option>Candy</option>
-          <option>Lollipop</option>
-          <option>Other</option>
+          <option value="">All Categories</option>
+          <option value="Chocolate">Chocolate</option>
+          <option value="Candy">Candy</option>
+          <option value="Lollipop">Lollipop</option>
+          <option value="Other">Other</option>
         </select>
         <input
           className="input-field"
