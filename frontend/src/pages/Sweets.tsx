@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { API, authHeader } from "../api";
 import Modal from "../components/Modal";
 
@@ -24,6 +24,11 @@ export default function Sweets() {
 
   const [amounts, setAmounts] = useState<Record<number, number>>({});
   const [modalType, setModalType] = useState<string | null>("");
+  const [errors, setErrors] = useState({
+    name: "",
+    price: "",
+    quantity: "",
+  });
 
   const [newSweet, setNewSweet] = useState({
     name: "",
@@ -32,7 +37,7 @@ export default function Sweets() {
     quantity: 1,
   });
 
-  const fetchSweets = useCallback(async () => {
+  const fetchSweets = async () => {
     const params = new URLSearchParams();
 
     if (search) params.append("search", search);
@@ -45,7 +50,7 @@ export default function Sweets() {
     });
 
     setSweets(await res.json());
-  }, [search, category, minPrice, maxPrice]);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,10 +62,40 @@ export default function Sweets() {
     };
 
     fetchData();
-  }, [fetchSweets]);
+  }, []);
 
   const handleAddSweet = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setErrors({ name: "", price: "", quantity: "" });
+
+    let hasErrors = false;
+    const newErrors = { name: "", price: "", quantity: "" };
+
+    if (!newSweet.name || !newSweet.name.trim()) {
+      newErrors.name = "Name cannot be empty";
+      hasErrors = true;
+    }
+
+    if (
+      !newSweet.price ||
+      newSweet.price === "" ||
+      parseFloat(newSweet.price) < 0
+    ) {
+      newErrors.price = "Price cannot be empty and must be greater than 0";
+      hasErrors = true;
+    }
+
+    if (!newSweet.quantity || newSweet.quantity < 0) {
+      newErrors.quantity =
+        "Quantity cannot be empty and must be greater than 0";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setErrors(newErrors);
+      return;
+    }
 
     await fetch(`${API}/sweets`, {
       method: "POST",
@@ -78,6 +113,7 @@ export default function Sweets() {
       price: "",
       quantity: 1,
     });
+    setErrors({ name: "", price: "", quantity: "" });
     setModalType(null);
   };
 
@@ -126,6 +162,26 @@ export default function Sweets() {
     e.preventDefault();
     if (!editSweet) return;
 
+    setErrors({ name: "", price: "", quantity: "" });
+
+    let hasErrors = false;
+    const newErrors = { name: "", price: "", quantity: "" };
+
+    if (!editSweet.name || !editSweet.name.trim()) {
+      newErrors.name = "Name cannot be empty";
+      hasErrors = true;
+    }
+
+    if (editSweet.price < 0) {
+      newErrors.price = "Price cannot be less than 0";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setErrors(newErrors);
+      return;
+    }
+
     await fetch(`${API}/sweets/${editSweet.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeader() },
@@ -137,6 +193,7 @@ export default function Sweets() {
     });
 
     setEditSweet(null);
+    setModalType(null);
     fetchSweets();
   };
 
@@ -196,49 +253,80 @@ export default function Sweets() {
         </button>
       )}
 
-      <Modal isOpen={modalType === "ADD"} onClose={() => setModalType(null)}>
+      <Modal
+        isOpen={modalType === "ADD"}
+        onClose={() => {
+          setModalType(null);
+          setErrors({ name: "", price: "", quantity: "" });
+        }}
+      >
         <h2 className="modal-title">Add Sweet</h2>
         <form className="modal-form" onSubmit={handleAddSweet}>
-          <input
-            className="input-field"
-            placeholder="Name"
-            required
-            value={newSweet.name}
-            onChange={(e) => setNewSweet({ ...newSweet, name: e.target.value })}
-          />
-          <select
-            className="input-field"
-            value={newSweet.category}
-            onChange={(e) =>
-              setNewSweet({ ...newSweet, category: e.target.value })
-            }
-          >
-            <option>Chocolate</option>
-            <option>Candy</option>
-            <option>Lollipop</option>
-            <option>Other</option>
-          </select>
-          <input
-            className="input-field"
-            type="number"
-            placeholder="Price"
-            required
-            value={newSweet.price}
-            onChange={(e) =>
-              setNewSweet({ ...newSweet, price: e.target.value })
-            }
-          />
-          <input
-            className="input-field"
-            type="number"
-            placeholder="Quantity"
-            required
-            min={1}
-            value={newSweet.quantity}
-            onChange={(e) =>
-              setNewSweet({ ...newSweet, quantity: Number(e.target.value) })
-            }
-          />
+          <div>
+            <label>Name: </label>
+            <input
+              className="input-field"
+              placeholder="Name"
+              required
+              value={newSweet.name}
+              onChange={(e) => {
+                setNewSweet({ ...newSweet, name: e.target.value });
+                if (errors.name) setErrors({ ...errors, name: "" });
+              }}
+            />
+            {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
+          </div>
+
+          <div>
+            <label>Category: </label>
+            <select
+              className="input-field"
+              value={newSweet.category}
+              onChange={(e) =>
+                setNewSweet({ ...newSweet, category: e.target.value })
+              }
+            >
+              <option>Chocolate</option>
+              <option>Candy</option>
+              <option>Lollipop</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Price: </label>
+            <input
+              className="input-field"
+              type="number"
+              placeholder="Price"
+              required
+              value={newSweet.price}
+              onChange={(e) => {
+                setNewSweet({ ...newSweet, price: e.target.value });
+                if (errors.price) setErrors({ ...errors, price: "" });
+              }}
+            />
+            {errors.price && <p style={{ color: "red" }}>{errors.price}</p>}
+          </div>
+
+          <div>
+            <label>Quantity: </label>
+            <input
+              className="input-field"
+              type="number"
+              required
+              min={0}
+              value={newSweet.quantity}
+              onChange={(e) => {
+                setNewSweet({ ...newSweet, quantity: Number(e.target.value) });
+                if (errors.quantity) setErrors({ ...errors, quantity: "" });
+              }}
+            />
+            {errors.quantity && (
+              <p style={{ color: "red" }}>{errors.quantity}</p>
+            )}
+          </div>
+
           <button type="submit" className="primary-btn">
             Add
           </button>
@@ -255,33 +343,50 @@ export default function Sweets() {
         <h2 className="modal-title">Edit Sweet</h2>
         {editSweet && (
           <form className="modal-form" onSubmit={handleEdit}>
-            <input
-              className="input-field"
-              value={editSweet.name}
-              onChange={(e) =>
-                setEditSweet({ ...editSweet, name: e.target.value })
-              }
-            />
-            <select
-              className="input-field"
-              value={editSweet.category}
-              onChange={(e) =>
-                setEditSweet({ ...editSweet, category: e.target.value })
-              }
-            >
-              <option>Chocolate</option>
-              <option>Candy</option>
-              <option>Lollipop</option>
-              <option>Other</option>
-            </select>
-            <input
-              className="input-field"
-              type="number"
-              value={editSweet.price}
-              onChange={(e) =>
-                setEditSweet({ ...editSweet, price: Number(e.target.value) })
-              }
-            />
+            <div>
+              <label>Name: </label>
+              <input
+                className="input-field"
+                required
+                value={editSweet.name}
+                onChange={(e) => {
+                  setEditSweet({ ...editSweet, name: e.target.value });
+                  if (errors.name) setErrors({ ...errors, name: "" });
+                }}
+              />
+              {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
+            </div>
+
+            <div>
+              <label>Category: </label>
+              <select
+                className="input-field"
+                value={editSweet.category}
+                onChange={(e) =>
+                  setEditSweet({ ...editSweet, category: e.target.value })
+                }
+              >
+                <option>Chocolate</option>
+                <option>Candy</option>
+                <option>Lollipop</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Price: </label>
+              <input
+                className="input-field"
+                type="number"
+                value={editSweet.price}
+                onChange={(e) => {
+                  setEditSweet({ ...editSweet, price: Number(e.target.value) });
+                  if (errors.price) setErrors({ ...errors, price: "" });
+                }}
+              />
+              {errors.price && <p style={{ color: "red" }}>{errors.price}</p>}
+            </div>
+
             <button type="submit" className="primary-btn">
               Save
             </button>

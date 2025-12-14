@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { API } from "../api";
 
 type Props = {
@@ -7,28 +7,38 @@ type Props = {
 };
 
 export default function Register({ onRegister, onSwitch }: Props) {
+  const [loading, setLoading] = useState(false);
+
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const target = e.target as typeof e.target & {
-      email: { value: string };
-      password: { value: string };
-    };
-    const res = await fetch(`${API}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: target.email.value,
-        password: target.password.value,
-      }),
-    });
-    if (res.status === 201) {
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      if (onRegister) onRegister();
-    } else {
-      const data = await res.json();
-      alert(data.message || "Email already exists");
+    setLoading(true);
+
+    try {
+      const target = e.target as typeof e.target & {
+        email: { value: string };
+        password: { value: string };
+      };
+      const res = await fetch(`${API}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: target.email.value,
+          password: target.password.value,
+        }),
+      });
+      if (res.status === 201) {
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        if (onRegister) onRegister();
+      } else {
+        const data = await res.json();
+        alert(data.message || "Email already exists");
+      }
+    } catch {
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,8 +65,15 @@ export default function Register({ onRegister, onSwitch }: Props) {
             required
             className="input-field"
           />
-          <button type="submit" className="auth-btn">
-            Register
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Registering...
+              </>
+            ) : (
+              "Create Account"
+            )}
           </button>
         </form>
         <p className="switch-text">

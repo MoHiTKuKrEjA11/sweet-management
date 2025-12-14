@@ -67,7 +67,6 @@ router.post("/:id/purchase", auth(), async (req, res) => {
 
 router.post("/:id/restock", auth(["ADMIN"]), async (req, res) => {
   const { amount } = req.body;
-  console.log(amount);
   const id = Number(req.params.id);
 
   const updated = await prisma.sweet.update({

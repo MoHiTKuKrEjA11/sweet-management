@@ -1,30 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { API } from "../api";
 
 type Props = { onLogin?: () => void; onSwitch?: () => void };
 
 export default function Login({ onLogin, onSwitch }: Props) {
+  const [loading, setLoading] = useState(false);
+
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const target = e.target as typeof e.target & {
-      email: { value: string };
-      password: { value: string };
-    };
-    const res = await fetch(`${API}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: target.email.value,
-        password: target.password.value,
-      }),
-    });
-    if (res.status === 200) {
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      if (onLogin) onLogin();
-    } else {
-      alert("Invalid credentials");
+    setLoading(true);
+
+    try {
+      const target = e.target as typeof e.target & {
+        email: { value: string };
+        password: { value: string };
+      };
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: target.email.value,
+          password: target.password.value,
+        }),
+      });
+      if (res.status === 200) {
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        if (onLogin) onLogin();
+      } else {
+        alert("Invalid credentials");
+      }
+    } catch {
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,8 +61,15 @@ export default function Login({ onLogin, onSwitch }: Props) {
             required
             className="input-field"
           />
-          <button type="submit" className="auth-btn">
-            Login
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
         <p className="switch-text">
