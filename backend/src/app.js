@@ -5,9 +5,11 @@ import sweetRoutes from "./routes/sweets.js";
 
 const app = express();
 
+const allowedOrigins = ["https://sweet-management-smoky.vercel.app"];
+
 app.use(
   cors({
-    origin: "https://sweet-management-xqhj.vercel.app",
+    origin: allowedOrigins,
   })
 );
 app.use(express.json());

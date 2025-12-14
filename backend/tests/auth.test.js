@@ -17,7 +17,11 @@ describe("Auth API", () => {
   });
 
   it("should not allow duplicate email", async () => {
-    const res = await request(app).post("/api/auth/register").send(user);
+    const tempUser = {
+      email: "admin@example.com",
+      password: "password123",
+    };
+    const res = await request(app).post("/api/auth/register").send(tempUser);
 
     expect(res.statusCode).toBe(400);
   });
