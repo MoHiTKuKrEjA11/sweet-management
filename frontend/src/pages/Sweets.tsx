@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { API, authHeader } from "../api";
 import Modal from "../components/Modal";
 
@@ -31,8 +31,9 @@ export default function Sweets() {
     price: "",
   });
 
-  const fetchSweets = async () => {
+  const fetchSweets = useCallback(async () => {
     const params = new URLSearchParams();
+
     if (search) params.append("search", search);
     if (category) params.append("category", category);
     if (minPrice) params.append("minPrice", minPrice);
@@ -41,8 +42,9 @@ export default function Sweets() {
     const res = await fetch(`${API}/sweets?${params.toString()}`, {
       headers: authHeader(),
     });
+
     setSweets(await res.json());
-  };
+  }, [search, category, minPrice, maxPrice]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +56,7 @@ export default function Sweets() {
     };
 
     fetchData();
-  }, []);
+  }, [fetchSweets]);
 
   const handleAddSweet = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
