@@ -134,21 +134,27 @@ export default function Sweets() {
   };
 
   return (
-    <div>
-      <h1>Sweets</h1>
+    <div className="sweets-page">
+      <h1 className="page-title">Sweets</h1>
 
       <form
+        className="filter-form"
         onSubmit={(e) => {
           e.preventDefault();
           fetchSweets();
         }}
       >
         <input
+          className="input-field"
           placeholder="Name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select
+          className="input-field"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
           <option value="" disabled>
             Category
           </option>
@@ -158,31 +164,44 @@ export default function Sweets() {
           <option>Other</option>
         </select>
         <input
+          className="input-field"
           placeholder="Min Price"
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
         />
         <input
+          className="input-field"
           placeholder="Max Price"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
         />
-        <button>Search</button>
+        <button type="submit" className="primary-btn">
+          Search
+        </button>
       </form>
 
       {role === "ADMIN" && (
-        <button onClick={() => setModalType("ADD")}>Add Sweet</button>
+        <button
+          className="primary-btn add-btn"
+          onClick={() => setModalType("ADD")}
+        >
+          Add Sweet
+        </button>
       )}
 
       <Modal isOpen={modalType === "ADD"} onClose={() => setModalType(null)}>
-        <h2>Add Sweet</h2>
-        <form onSubmit={handleAddSweet}>
+        <h2 className="modal-title">Add Sweet</h2>
+        <form className="modal-form" onSubmit={handleAddSweet}>
           <input
-            required
+            className="input-field"
             placeholder="Name"
+            required
+            value={newSweet.name}
             onChange={(e) => setNewSweet({ ...newSweet, name: e.target.value })}
           />
           <select
+            className="input-field"
+            value={newSweet.category}
             onChange={(e) =>
               setNewSweet({ ...newSweet, category: e.target.value })
             }
@@ -193,14 +212,18 @@ export default function Sweets() {
             <option>Other</option>
           </select>
           <input
+            className="input-field"
             type="number"
-            required
             placeholder="Price"
+            required
+            value={newSweet.price}
             onChange={(e) =>
               setNewSweet({ ...newSweet, price: e.target.value })
             }
           />
-          <button>Add</button>
+          <button type="submit" className="primary-btn">
+            Add
+          </button>
         </form>
       </Modal>
 
@@ -211,17 +234,18 @@ export default function Sweets() {
           setModalType(null);
         }}
       >
-        <h2>Edit Sweet</h2>
-
+        <h2 className="modal-title">Edit Sweet</h2>
         {editSweet && (
-          <form onSubmit={handleEdit}>
+          <form className="modal-form" onSubmit={handleEdit}>
             <input
+              className="input-field"
               value={editSweet.name}
               onChange={(e) =>
                 setEditSweet({ ...editSweet, name: e.target.value })
               }
             />
             <select
+              className="input-field"
               value={editSweet.category}
               onChange={(e) =>
                 setEditSweet({ ...editSweet, category: e.target.value })
@@ -233,55 +257,74 @@ export default function Sweets() {
               <option>Other</option>
             </select>
             <input
+              className="input-field"
               type="number"
               value={editSweet.price}
               onChange={(e) =>
                 setEditSweet({ ...editSweet, price: Number(e.target.value) })
               }
             />
-            <button>Save</button>
+            <button type="submit" className="primary-btn">
+              Save
+            </button>
           </form>
         )}
       </Modal>
 
-      {sweets.map((s) => (
-        <div
-          key={s.id}
-          style={{ border: "1px solid gray", margin: 10, padding: 10 }}
-        >
-          <b>{s.name}</b> ({s.category}) — ${s.price} — Stock: {s.quantity}
-          <div>
-            <input
-              type="number"
-              min={1}
-              value={amounts[s.id] || 1}
-              onChange={(e) =>
-                setAmounts({ ...amounts, [s.id]: Number(e.target.value) })
-              }
-            />
-            <button
-              disabled={s.quantity === 0}
-              onClick={() => purchaseSweet(s)}
-            >
-              Buy
-            </button>
+      <div className="sweets-grid">
+        {sweets.map((s) => (
+          <div key={s.id} className="sweet-card">
+            <h3>{s.name}</h3>
+            <p>Category: {s.category}</p>
+            <p>Price: ${s.price}</p>
+            <p>Stock: {s.quantity}</p>
+
+            <div className="sweet-actions">
+              <input
+                type="number"
+                min={1}
+                value={amounts[s.id] || 1}
+                onChange={(e) =>
+                  setAmounts({ ...amounts, [s.id]: Number(e.target.value) })
+                }
+                className="amount-input"
+              />
+              <button
+                className="primary-btn"
+                disabled={s.quantity === 0}
+                onClick={() => purchaseSweet(s)}
+              >
+                Buy
+              </button>
+              <button
+                className="secondary-btn"
+                onClick={() => {
+                  setEditSweet(s);
+                  setModalType("EDIT");
+                }}
+              >
+                Edit
+              </button>
+              {role === "ADMIN" && (
+                <>
+                  <button
+                    className="secondary-btn"
+                    onClick={() => restockSweet(s.id)}
+                  >
+                    Restock
+                  </button>
+                  <button
+                    className="danger-btn"
+                    onClick={() => deleteSweet(s.id)}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-          <button
-            onClick={() => {
-              setEditSweet(s);
-              setModalType("EDIT");
-            }}
-          >
-            Edit
-          </button>
-          {role === "ADMIN" && (
-            <>
-              <button onClick={() => restockSweet(s.id)}>Restock</button>
-              <button onClick={() => deleteSweet(s.id)}>Delete</button>
-            </>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

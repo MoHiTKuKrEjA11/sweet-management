@@ -22,20 +22,46 @@ export default function Login({ onLogin, onSwitch }: Props) {
       const data = await res.json();
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
-      if(onLogin) onLogin();
+      if (onLogin) onLogin();
     } else {
       alert("Invalid credentials");
     }
   };
 
   return (
-    <form onSubmit={submit}>
-      <input name="email" placeholder="Email" />
-      <input name="password" type="password" placeholder="Password" />
-      <button>Login</button>
-      <p onClick={onSwitch} style={{ cursor: "pointer", color: "blue" }}>
-        No account? Register
-      </p>
-    </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2 className="auth-title">Login to Your Account</h2>
+        <form className="auth-form" onSubmit={submit}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
+            required
+            className="input-field"
+          />
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            required
+            className="input-field"
+          />
+          <button type="submit" className="auth-btn">
+            Login
+          </button>
+        </form>
+        <p className="switch-text">
+          No account?{" "}
+          <span onClick={onSwitch} className="switch-link">
+            Register
+          </span>
+        </p>
+      </div>
+    </div>
   );
 }

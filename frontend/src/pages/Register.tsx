@@ -21,7 +21,7 @@ export default function Register({ onRegister, onSwitch }: Props) {
         password: target.password.value,
       }),
     });
-    if (res.status === 200) {
+    if (res.status === 201) {
       const data = await res.json();
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
@@ -33,13 +33,39 @@ export default function Register({ onRegister, onSwitch }: Props) {
   };
 
   return (
-    <form onSubmit={submit}>
-      <input name="email" placeholder="Email" />
-      <input name="password" type="password" placeholder="Password" />
-      <button>Register</button>
-      <p onClick={onSwitch} style={{ cursor: "pointer", color: "blue" }}>
-        Already have account? Login
-      </p>
-    </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2 className="auth-title">Create an Account</h2>
+        <form className="auth-form" onSubmit={submit}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
+            required
+            className="input-field"
+          />
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            required
+            className="input-field"
+          />
+          <button type="submit" className="auth-btn">
+            Register
+          </button>
+        </form>
+        <p className="switch-text">
+          Already have an account?{" "}
+          <span onClick={onSwitch} className="switch-link">
+            Login
+          </span>
+        </p>
+      </div>
+    </div>
   );
 }
