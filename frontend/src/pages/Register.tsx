@@ -2,8 +2,8 @@ import React from "react";
 import { API } from "../api";
 
 type Props = {
-  onRegister: () => void;
-  onSwitch: () => void;
+  onRegister?: () => void;
+  onSwitch?: () => void;
 };
 
 export default function Register({ onRegister, onSwitch }: Props) {
@@ -25,7 +25,7 @@ export default function Register({ onRegister, onSwitch }: Props) {
       const data = await res.json();
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
-      onRegister();
+      if (onRegister) onRegister();
     } else {
       const data = await res.json();
       alert(data.message || "Email already exists");

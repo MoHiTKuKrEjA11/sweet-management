@@ -1,7 +1,7 @@
 import React from "react";
 import { API } from "../api";
 
-type Props = { onLogin: () => void; onSwitch: () => void };
+type Props = { onLogin?: () => void; onSwitch?: () => void };
 
 export default function Login({ onLogin, onSwitch }: Props) {
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -22,7 +22,7 @@ export default function Login({ onLogin, onSwitch }: Props) {
       const data = await res.json();
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
-      onLogin();
+      if(onLogin) onLogin();
     } else {
       alert("Invalid credentials");
     }

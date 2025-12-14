@@ -29,7 +29,8 @@ router.get("/", auth(), async (req, res) => {
 });
 
 router.post("/", auth(["ADMIN"]), async (req, res) => {
-  res.json(await prisma.sweet.create({ data: req.body }));
+  const sweet = await prisma.sweet.create({ data: req.body });
+  res.status(201).json(sweet);
 });
 
 router.put("/:id", auth(), async (req, res) => {
@@ -42,7 +43,7 @@ router.put("/:id", auth(), async (req, res) => {
 
 router.delete("/:id", auth(["ADMIN"]), async (req, res) => {
   await prisma.sweet.delete({ where: { id: Number(req.params.id) } });
-  res.sendStatus(204);
+  res.sendStatus(200);
 });
 
 router.post("/:id/purchase", auth(), async (req, res) => {
